@@ -12,6 +12,7 @@ import DigitalTwin from "./pages/DigitalTwin";
 import SelfHealingLogs from "./pages/SelfHealingLogs";
 import MaintenancePriority from "./pages/MaintenancePriority";
 import MaintenanceTickets from "./pages/MaintenanceTickets";
+import WhatIfSimulation from "./pages/WhatIfSimulation";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -49,6 +50,7 @@ const App = () => (
           <Route path="/digital-twin" element={<AppLayout><DigitalTwin /></AppLayout>} />
           <Route path="/self-healing" element={<AppLayout><SelfHealingLogs /></AppLayout>} />
           <Route path="/maintenance-priority" element={<AppLayout><MaintenancePriority /></AppLayout>} />
+          <Route path="/what-if-simulation" element={<AppLayout><WhatIfSimulation /></AppLayout>} />
           <Route path="/maintenance-tickets" element={<AppLayout><MaintenanceTickets /></AppLayout>} />
           <Route path="*" element={<NotFound />} />
         </Routes>

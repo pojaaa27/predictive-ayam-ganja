@@ -1,4 +1,4 @@
-import { LayoutDashboard, Activity, Box, Shield, Calendar, FileText } from "lucide-react";
+import { LayoutDashboard, Activity, Box, Shield, Calendar, FileText, FlaskConical } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 
@@ -21,6 +21,7 @@ const menuItems = [
   { title: "Digital Twin 3D", url: "/digital-twin", icon: Box },
   { title: "Self-Healing Logs", url: "/self-healing", icon: Shield },
   { title: "Maintenance Priority", url: "/maintenance-priority", icon: Calendar },
+  { title: "What-If Simulation", url: "/what-if-simulation", icon: FlaskConical },
   { title: "Maintenance Tickets", url: "/maintenance-tickets", icon: FileText },
 ];
 
