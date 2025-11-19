@@ -46,6 +46,7 @@ const selfHealingLogs = [
 
 export default function MachineDetail() {
   const navigate = useNavigate();
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
 
   const getStatusColor = (status: string) => {
