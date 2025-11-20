@@ -4,7 +4,36 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Search, Filter, Download } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  FileText, 
+  Search, 
+  Filter, 
+  Download, 
+  Plus, 
+  Calendar as CalendarIcon,
+  BarChart3, 
+  Users,
+  Trash2,
+  Clock
+} from "lucide-react";
+import { toast } from "sonner";
+import { CreateTicketModal } from "@/components/CreateTicketModal";
+import { TicketDetailModal } from "@/components/TicketDetailModal";
+import { RescheduleTicketModal } from "@/components/RescheduleTicketModal";
+import { TechnicianAvailabilityModal } from "@/components/TechnicianAvailabilityModal";
+import { TicketCalendarView } from "@/components/TicketCalendarView";
+import { TicketAnalytics } from "@/components/TicketAnalytics";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const mockStats = {
   total_tickets: 1248,
@@ -81,14 +110,56 @@ export default function MaintenanceTickets() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterType, setFilterType] = useState("all");
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [rescheduleModalOpen, setRescheduleModalOpen] = useState(false);
+  const [techModalOpen, setTechModalOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedTicket, setSelectedTicket] = useState<any>(null);
+  const [tickets, setTickets] = useState(mockTickets);
 
-  const filteredTickets = mockTickets.filter(ticket => {
+  const filteredTickets = tickets.filter(ticket => {
     const matchesSearch = ticket.machine.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           ticket.id.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = filterStatus === "all" || ticket.status === filterStatus;
     const matchesType = filterType === "all" || ticket.maintenance_type === filterType;
     return matchesSearch && matchesStatus && matchesType;
   });
+
+  const handleViewDetail = (ticket: any) => {
+    setSelectedTicket(ticket);
+    setDetailModalOpen(true);
+  };
+
+  const handleReschedule = (ticket: any) => {
+    setSelectedTicket(ticket);
+    setRescheduleModalOpen(true);
+  };
+
+  const handleDeleteTicket = (ticket: any) => {
+    setSelectedTicket(ticket);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (selectedTicket) {
+      setTickets(tickets.filter(t => t.id !== selectedTicket.id));
+      toast.success(`Ticket ${selectedTicket.id} deleted successfully`);
+      setDeleteDialogOpen(false);
+      setSelectedTicket(null);
+    }
+  };
+
+  const handleUpdate = () => {
+    // Refresh logic after update
+    toast.success("Ticket updated successfully");
+  };
+
+  const handleExport = () => {
+    toast.success("Exporting ticket data...", {
+      description: "Your export will be ready in a moment"
+    });
+  };
 
   const getMaintenanceTypeColor = (type: string) => {
     switch (type) {
@@ -160,16 +231,10 @@ export default function MaintenanceTickets() {
           </Card>
         </div>
 
-        {/* Filters */}
+        {/* Action Bar */}
         <Card className="glass-effect">
-          <CardHeader>
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Filter className="h-4 w-4" />
-              Filters & Search
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-3">
+          <CardContent className="pt-4">
+            <div className="flex flex-wrap gap-3 items-center">
               <div className="flex-1 min-w-[200px]">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -204,73 +269,183 @@ export default function MaintenanceTickets() {
                   <SelectItem value="Cancelled">Cancelled</SelectItem>
                 </SelectContent>
               </Select>
-              <Button variant="outline" className="glass-effect">
+              <Button variant="outline" className="glass-effect" onClick={() => setTechModalOpen(true)}>
+                <Users className="h-4 w-4 mr-2" />
+                Check Availability
+              </Button>
+              <Button variant="outline" className="glass-effect" onClick={handleExport}>
                 <Download className="h-4 w-4 mr-2" />
                 Export
+              </Button>
+              <Button className="glass-effect" onClick={() => setCreateModalOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Create Ticket
               </Button>
             </div>
           </CardContent>
         </Card>
 
-        {/* Tickets Table */}
-        <Card className="glass-effect">
-          <CardHeader>
-            <CardTitle className="text-sm">Maintenance Tickets</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {filteredTickets.map((ticket) => (
-                <div 
-                  key={ticket.id}
-                  className="p-4 rounded-lg bg-card/30 border border-border/50 hover:bg-card/50 transition-all cursor-pointer"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-mono text-sm font-medium">{ticket.id}</span>
-                        <Badge variant="outline" className="text-xs">{ticket.machine}</Badge>
-                        <Badge className={`text-xs ${getMaintenanceTypeColor(ticket.maintenance_type)}`}>
-                          {ticket.maintenance_type}
-                        </Badge>
-                        <Badge className={`text-xs ${getStatusColor(ticket.status)}`}>
-                          {ticket.status}
-                        </Badge>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 md:grid-cols-6 gap-2 text-xs">
-                        <div>
-                          <span className="text-muted-foreground">Date: </span>
-                          <span className="font-medium">{ticket.date.split(' ')[0]}</span>
+        {/* Tabs for different views */}
+        <Tabs defaultValue="list" className="space-y-6">
+          <TabsList className="glass-effect">
+            <TabsTrigger value="list">
+              <FileText className="h-4 w-4 mr-2" />
+              List View
+            </TabsTrigger>
+            <TabsTrigger value="calendar">
+              <CalendarIcon className="h-4 w-4 mr-2" />
+              Calendar
+            </TabsTrigger>
+            <TabsTrigger value="analytics">
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Analytics
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="list" className="space-y-4">
+            <Card className="glass-effect">
+              <CardHeader>
+                <CardTitle className="text-sm">Maintenance Tickets ({filteredTickets.length})</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {filteredTickets.map((ticket) => (
+                    <div 
+                      key={ticket.id}
+                      className="p-4 rounded-lg bg-card/30 border border-border/50 hover:bg-card/50 transition-all"
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 space-y-2">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-mono text-sm font-medium">{ticket.id}</span>
+                            <Badge variant="outline" className="text-xs">{ticket.machine}</Badge>
+                            <Badge className={`text-xs ${getMaintenanceTypeColor(ticket.maintenance_type)}`}>
+                              {ticket.maintenance_type}
+                            </Badge>
+                            <Badge className={`text-xs ${getStatusColor(ticket.status)}`}>
+                              {ticket.status}
+                            </Badge>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs">
+                            <div>
+                              <span className="text-muted-foreground">Date: </span>
+                              <span className="font-medium">{ticket.date.split(' ')[0]}</span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Failure: </span>
+                              <span className="font-medium">{ticket.failure_type}</span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Technician: </span>
+                              <span className="font-medium">{ticket.technician}</span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Cost: </span>
+                              <span className="font-medium">Rp {(ticket.cost / 1000000).toFixed(1)}M</span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Downtime: </span>
+                              <span className="font-medium">{ticket.downtime}h</span>
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          <span className="text-muted-foreground">Failure: </span>
-                          <span className="font-medium">{ticket.failure_type}</span>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Technician: </span>
-                          <span className="font-medium">{ticket.technician}</span>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Cost: </span>
-                          <span className="font-medium">Rp {(ticket.cost / 1000000).toFixed(1)}M</span>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Downtime: </span>
-                          <span className="font-medium">{ticket.downtime}h</span>
-                        </div>
-                        <div>
-                          <Button size="sm" variant="outline" className="h-6 text-xs">
+
+                        <div className="flex flex-col gap-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="h-7 text-xs"
+                            onClick={() => handleViewDetail(ticket)}
+                          >
                             View Details
+                          </Button>
+                          {ticket.status !== "Completed" && (
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="h-7 text-xs"
+                              onClick={() => handleReschedule(ticket)}
+                            >
+                              <Clock className="h-3 w-3 mr-1" />
+                              Reschedule
+                            </Button>
+                          )}
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="h-7 text-xs text-status-critical hover:text-status-critical"
+                            onClick={() => handleDeleteTicket(ticket)}
+                          >
+                            <Trash2 className="h-3 w-3 mr-1" />
+                            Delete
                           </Button>
                         </div>
                       </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="calendar">
+            <TicketCalendarView tickets={tickets} />
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <TicketAnalytics />
+          </TabsContent>
+        </Tabs>
+
+        {/* Modals */}
+        <CreateTicketModal
+          open={createModalOpen}
+          onOpenChange={setCreateModalOpen}
+          onCreate={() => {
+            setCreateModalOpen(false);
+            // Refresh logic
+          }}
+        />
+
+        <TicketDetailModal
+          open={detailModalOpen}
+          onOpenChange={setDetailModalOpen}
+          ticket={selectedTicket}
+          onUpdate={handleUpdate}
+        />
+
+        <RescheduleTicketModal
+          open={rescheduleModalOpen}
+          onOpenChange={setRescheduleModalOpen}
+          ticket={selectedTicket}
+          onReschedule={() => {
+            setRescheduleModalOpen(false);
+            handleUpdate();
+          }}
+        />
+
+        <TechnicianAvailabilityModal
+          open={techModalOpen}
+          onOpenChange={setTechModalOpen}
+        />
+
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Ticket</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete ticket {selectedTicket?.id}? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmDelete} className="bg-status-critical hover:bg-status-critical/90">
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

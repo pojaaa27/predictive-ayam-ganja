@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Activity, AlertTriangle, Wrench, CheckCircle2, TrendingUp, DollarSign, Clock, Search } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [filterStatus, setFilterStatus] = useState("all");
+  const navigate = useNavigate();
 
   // Mock data - akan diganti dengan data dari API
   const machineStatus = {
@@ -397,7 +399,13 @@ const Dashboard = () => {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Button size="sm" variant="outline">View Detail</Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => navigate(`/machine-detail?id=${machine.id}`)}
+                  >
+                    View Detail
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
