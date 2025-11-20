@@ -146,27 +146,50 @@ export default function SelfHealingLogs() {
             <CardTitle>Self-Healing Logs ({filteredLogs.length})</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {filteredLogs.map((log, index) => (
-                <div 
-                  key={index} 
-                  className="p-4 rounded-lg border cursor-pointer hover:bg-card/50"
-                  onClick={() => {
-                    setSelectedLog(log);
-                    setIsDetailModalOpen(true);
-                  }}
-                >
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="text-xs text-muted-foreground">{log.timestamp}</span>
-                    <Badge variant="outline">{log.machine}</Badge>
-                    <Badge variant={log.result === "Success" ? "default" : "destructive"}>
-                      {log.result}
-                    </Badge>
-                  </div>
-                  <p className="text-sm font-medium">{log.action}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{log.detail}</p>
+            <div className="space-y-3">
+              {filteredLogs.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <AlertCircle className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                  <p>No logs found matching your filters</p>
                 </div>
-              ))}
+              ) : (
+                filteredLogs.map((log, index) => (
+                  <div 
+                    key={index} 
+                    className="p-4 rounded-lg border border-border/50 bg-card/30 cursor-pointer hover:bg-card/50 hover:border-border transition-all"
+                    onClick={() => {
+                      setSelectedLog(log);
+                      setIsDetailModalOpen(true);
+                    }}
+                  >
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-xs text-muted-foreground font-mono">{log.timestamp}</span>
+                        <Badge variant="outline" className="text-xs">{log.machine}</Badge>
+                        <Badge 
+                          variant="outline"
+                          className="text-xs border-muted-foreground/30"
+                        >
+                          {log.trigger}
+                        </Badge>
+                      </div>
+                      <Badge 
+                        variant={log.result === "Success" ? "default" : "destructive"}
+                        className="shrink-0"
+                      >
+                        {log.result === "Success" ? (
+                          <CheckCircle2 className="h-3 w-3 mr-1" />
+                        ) : (
+                          <XCircle className="h-3 w-3 mr-1" />
+                        )}
+                        {log.result}
+                      </Badge>
+                    </div>
+                    <p className="text-sm font-medium text-foreground mb-1">{log.action}</p>
+                    <p className="text-xs text-muted-foreground">{log.detail}</p>
+                  </div>
+                ))
+              )}
             </div>
           </CardContent>
         </Card>

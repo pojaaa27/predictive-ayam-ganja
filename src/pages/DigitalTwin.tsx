@@ -3,13 +3,27 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Box, RotateCw, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Box, RotateCw, ZoomIn, ZoomOut, RotateCcw, TrendingUp } from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
 
 // Mock data for machines
 const machines = [
   { id: "M65401", type: "M", health: 65.3, alert: "Warning" },
   { id: "H87213", type: "H", health: 22.1, alert: "Critical" },
   { id: "L38294", type: "L", health: 88.5, alert: null },
+];
+
+// Mock trend data for health history
+const mockTrendData = [
+  { time: "00:00", overall: 68, cooling: 89, motor: 85, spindle: 72, bearing: 92 },
+  { time: "04:00", overall: 67, cooling: 88, motor: 84, spindle: 71, bearing: 92 },
+  { time: "08:00", overall: 66, cooling: 87, motor: 83, spindle: 70, bearing: 91 },
+  { time: "12:00", overall: 65, cooling: 87, motor: 82, spindle: 68, bearing: 91 },
+  { time: "16:00", overall: 65, cooling: 87, motor: 82, spindle: 68, bearing: 91 },
+  { time: "20:00", overall: 66, cooling: 88, motor: 83, spindle: 69, bearing: 92 },
+  { time: "Now", overall: 65.3, cooling: 87, motor: 82, spindle: 68, bearing: 91 }
 ];
 
 const mockMachine3DData = {
@@ -50,6 +64,7 @@ const mockMachine3DData = {
 export default function DigitalTwin() {
   const [selectedMachine, setSelectedMachine] = useState("M65401");
   const [rotation, setRotation] = useState(0);
+  const [showTrendHistory, setShowTrendHistory] = useState(false);
 
   const getHealthColor = (health: number) => {
     if (health >= 70) return "bg-status-running";
@@ -260,6 +275,107 @@ export default function DigitalTwin() {
             </div>
           </div>
         </div>
+
+        {/* Health Trend History */}
+        <Card className="glass-effect">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <TrendingUp className="h-5 w-5 text-primary" />
+                <CardTitle>Health Trend History (24h)</CardTitle>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="trend-mode"
+                  checked={showTrendHistory}
+                  onCheckedChange={setShowTrendHistory}
+                />
+                <Label htmlFor="trend-mode" className="text-sm">
+                  {showTrendHistory ? "Hide Chart" : "Show Chart"}
+                </Label>
+              </div>
+            </div>
+          </CardHeader>
+          {showTrendHistory && (
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={mockTrendData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis 
+                    dataKey="time" 
+                    stroke="hsl(var(--muted-foreground))"
+                  />
+                  <YAxis 
+                    stroke="hsl(var(--muted-foreground))"
+                    domain={[0, 100]}
+                  />
+                  <Tooltip 
+                    contentStyle={{
+                      backgroundColor: "hsl(var(--card))",
+                      border: "1px solid hsl(var(--border))",
+                      borderRadius: "8px"
+                    }}
+                  />
+                  <Legend />
+                  <Line 
+                    type="monotone" 
+                    dataKey="overall" 
+                    stroke="hsl(var(--primary))" 
+                    strokeWidth={3}
+                    name="Overall Health"
+                    dot={{ fill: "hsl(var(--primary))" }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="cooling" 
+                    stroke="#22c55e" 
+                    strokeWidth={2}
+                    name="Cooling System"
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="motor" 
+                    stroke="#3b82f6" 
+                    strokeWidth={2}
+                    name="Motor & Power"
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="spindle" 
+                    stroke="#eab308" 
+                    strokeWidth={2}
+                    name="Spindle & Tool"
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="bearing" 
+                    stroke="#8b5cf6" 
+                    strokeWidth={2}
+                    name="Bearing System"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+              <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="p-3 rounded-lg bg-card/50 border border-border">
+                  <p className="text-xs text-muted-foreground">24h Avg</p>
+                  <p className="text-lg font-bold text-foreground">66.1%</p>
+                </div>
+                <div className="p-3 rounded-lg bg-card/50 border border-border">
+                  <p className="text-xs text-muted-foreground">Trend</p>
+                  <p className="text-lg font-bold text-status-warning">↓ -2.7%</p>
+                </div>
+                <div className="p-3 rounded-lg bg-card/50 border border-border">
+                  <p className="text-xs text-muted-foreground">Min Health</p>
+                  <p className="text-lg font-bold text-status-critical">65.0%</p>
+                </div>
+                <div className="p-3 rounded-lg bg-card/50 border border-border">
+                  <p className="text-xs text-muted-foreground">Max Health</p>
+                  <p className="text-lg font-bold text-status-running">68.0%</p>
+                </div>
+              </div>
+            </CardContent>
+          )}
+        </Card>
       </div>
     </div>
   );
