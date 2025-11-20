@@ -1,8 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, AlertTriangle, TrendingUp, Clock } from "lucide-react";
+import { Calendar, AlertTriangle, TrendingUp, Clock, Users, DollarSign, Wrench } from "lucide-react";
+import { ScheduleMaintenanceModal } from "@/components/ScheduleMaintenanceModal";
+import { OptimizeScheduleModal } from "@/components/OptimizeScheduleModal";
+import { toast } from "sonner";
 
 const mockTasks = [
   {
@@ -65,6 +69,19 @@ const riskMatrix = [
 
 export default function MaintenancePriority() {
   const [tasks] = useState(mockTasks);
+  const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
+  const [optimizeModalOpen, setOptimizeModalOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<any>(null);
+  const navigate = useNavigate();
+
+  const handleSchedule = (task: any) => {
+    setSelectedTask(task);
+    setScheduleModalOpen(true);
+  };
+
+  const handleScheduleAll = () => {
+    setOptimizeModalOpen(true);
+  };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -88,7 +105,101 @@ export default function MaintenancePriority() {
           <p className="text-muted-foreground mt-1">Optimize maintenance scheduling based on risk and impact</p>
         </div>
 
-        {/* Summary Cards */}
+        {/* Smart Scheduling Recommendations */}
+        <Card className="glass-effect border-primary/20 bg-gradient-to-r from-primary/5 to-accent/5">
+          <CardHeader>
+            <CardTitle className="text-sm flex items-center gap-2">
+              💡 Smart Scheduling Recommendations
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
+                <p className="text-sm">
+                  <span className="font-medium">Batch Maintenance Opportunity:</span> Mesin M65401 dan M98765 dapat dijadwalkan bersamaan untuk menghemat waktu downtime total 30%.
+                </p>
+              </div>
+              <div className="p-3 rounded-lg bg-accent/10 border border-accent/20">
+                <p className="text-sm">
+                  <span className="font-medium">Cost Optimization:</span> Menunda maintenance mesin L38294 hingga akhir bulan dapat menghemat biaya operasional Rp 2.4M tanpa risiko signifikan.
+                </p>
+              </div>
+              <div className="p-3 rounded-lg bg-status-warning/10 border border-status-warning/20">
+                <p className="text-sm">
+                  <span className="font-medium">Resource Alert:</span> Teknisi Fajar Rahman sudah dijadwalkan untuk 3 tugas critical hari ini. Pertimbangkan realokasi atau backup.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Resource Summary */}
+        <Card className="glass-effect border-accent/20">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Wrench className="h-4 w-4 text-accent" />
+                Resource Requirements Summary
+              </CardTitle>
+              <Button 
+                variant="default" 
+                size="sm" 
+                onClick={handleScheduleAll}
+                className="glass-effect"
+              >
+                Optimize Schedule
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-4 rounded-lg bg-card/30 border border-border/50">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-primary/20">
+                    <Users className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <div className="text-xs text-muted-foreground">Technicians Required</div>
+                    <div className="text-xl font-bold">5 Techs</div>
+                    <div className="text-xs text-status-running mt-1">All available</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-lg bg-card/30 border border-border/50">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-accent/20">
+                    <DollarSign className="h-5 w-5 text-accent" />
+                  </div>
+                  <div>
+                    <div className="text-xs text-muted-foreground">Total Cost Estimate</div>
+                    <div className="text-xl font-bold">Rp 142M</div>
+                    <div className="text-xs text-muted-foreground mt-1">16 tasks pending</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-lg bg-card/30 border border-border/50">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-status-warning/20">
+                    <Clock className="h-5 w-5 text-status-warning" />
+                  </div>
+                  <div>
+                    <div className="text-xs text-muted-foreground">Total Time Required</div>
+                    <div className="text-xl font-bold">48 Hours</div>
+                    <div className="text-xs text-status-warning mt-1">Schedule optimization available</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 p-3 rounded-lg bg-primary/5 border border-primary/20">
+              <p className="text-xs text-muted-foreground">
+                💡 <span className="font-medium">Optimization Potential:</span> By optimizing the schedule, you can reduce total downtime by 18 hours and save approximately Rp 12M in operational costs.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card className="glass-effect border-status-critical/20">
             <CardHeader className="pb-3">
@@ -183,7 +294,7 @@ export default function MaintenancePriority() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-sm">Priority Task Queue</CardTitle>
-                <Button variant="outline" size="sm" className="glass-effect">
+                <Button variant="outline" size="sm" className="glass-effect" onClick={handleScheduleAll}>
                   <Calendar className="h-4 w-4 mr-2" />
                   Schedule All
                 </Button>
@@ -224,7 +335,12 @@ export default function MaintenancePriority() {
                           </div>
                         </div>
                       </div>
-                      <Button size="sm" variant="outline" className="glass-effect">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="glass-effect"
+                        onClick={() => handleSchedule(task)}
+                      >
                         Schedule
                       </Button>
                     </div>
@@ -239,29 +355,45 @@ export default function MaintenancePriority() {
         <Card className="glass-effect border-primary/20">
           <CardHeader>
             <CardTitle className="text-sm flex items-center gap-2">
-              💡 Optimization Recommendations
+              📊 Additional Insights
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <div className="p-3 rounded-lg bg-primary/10 border border-primary/20">
+              <div className="p-3 rounded-lg bg-status-running/10 border border-status-running/20">
                 <p className="text-sm">
-                  <span className="font-medium">Batch Maintenance Opportunity:</span> Mesin M65401 dan M98765 dapat dijadwalkan bersamaan untuk menghemat waktu downtime total 30%.
+                  <span className="font-medium">Maintenance Window:</span> Best scheduling window is between 02:00-06:00 AM for minimal production impact.
                 </p>
               </div>
               <div className="p-3 rounded-lg bg-accent/10 border border-accent/20">
                 <p className="text-sm">
-                  <span className="font-medium">Cost Optimization:</span> Menunda maintenance mesin L38294 hingga akhir bulan dapat menghemat biaya operasional Rp 2.4M tanpa risiko signifikan.
-                </p>
-              </div>
-              <div className="p-3 rounded-lg bg-status-warning/10 border border-status-warning/20">
-                <p className="text-sm">
-                  <span className="font-medium">Resource Alert:</span> Teknisi Fajar Rahman sudah dijadwalkan untuk 3 tugas critical hari ini. Pertimbangkan realokasi atau backup.
+                  <span className="font-medium">Parts Availability:</span> All required spare parts are in stock except for H87213 cooling unit (ETA: 2 days).
                 </p>
               </div>
             </div>
           </CardContent>
         </Card>
+
+        {/* Modals */}
+        <ScheduleMaintenanceModal
+          open={scheduleModalOpen}
+          onOpenChange={setScheduleModalOpen}
+          machine={selectedTask?.machine}
+          onSchedule={() => {
+            setScheduleModalOpen(false);
+            toast.success("Maintenance scheduled successfully");
+          }}
+        />
+
+        <OptimizeScheduleModal
+          open={optimizeModalOpen}
+          onOpenChange={setOptimizeModalOpen}
+          tasks={tasks}
+          onConfirm={() => {
+            setOptimizeModalOpen(false);
+            toast.success("Optimized schedule confirmed and tickets created");
+          }}
+        />
       </div>
     </div>
   );

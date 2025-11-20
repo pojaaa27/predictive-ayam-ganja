@@ -18,6 +18,8 @@ interface ScheduleMaintenanceModalProps {
   productId?: string;
   machineType?: string;
   failureType?: string;
+  machine?: string;
+  onSchedule?: () => void;
 }
 
 const technicians = ["Fajar Rahman", "Budi Santoso", "Andi Pratama", "Gita Permata", "Rina Wijaya"];
@@ -28,7 +30,9 @@ export function ScheduleMaintenanceModal({
   onOpenChange, 
   productId,
   machineType,
-  failureType 
+  failureType,
+  machine,
+  onSchedule
 }: ScheduleMaintenanceModalProps) {
   const [date, setDate] = useState<Date>();
   const [selectedTechnician, setSelectedTechnician] = useState("");

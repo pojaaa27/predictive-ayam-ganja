@@ -10,52 +10,33 @@ import { Calendar, Clock, DollarSign, Users } from "lucide-react";
 interface OptimizeScheduleModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  selectedMachines: string[];
+  tasks: any[];
   onConfirm?: () => void;
 }
 
 export function OptimizeScheduleModal({ 
   open, 
   onOpenChange, 
-  selectedMachines,
-  onConfirm 
+  tasks = [],
+  onConfirm
 }: OptimizeScheduleModalProps) {
   const [isOptimized, setIsOptimized] = useState(false);
   const [optimizedSchedule, setOptimizedSchedule] = useState<any>(null);
 
   const handleOptimize = () => {
-    // Mock optimization
     const mockSchedule = {
-      totalCost: 35200000,
+      totalCost: tasks.reduce((sum, t) => sum + t.cost, 0),
       totalDowntime: 18.0,
       completionDate: "2025-11-19",
       efficiencyScore: 92.5,
-      tasks: [
-        {
-          timeslot: "08:00-16:00",
-          productId: selectedMachines[0] || "M18273",
-          technician: "Fajar Rahman",
-          maintenanceType: "Emergency",
-          cost: 12500000,
-          downtime: 8.0
-        },
-        {
-          timeslot: "08:00-14:30",
-          productId: selectedMachines[1] || "H87213",
-          technician: "Gita Permata",
-          maintenanceType: "Emergency",
-          cost: 18500000,
-          downtime: 6.5
-        },
-        {
-          timeslot: "14:30-18:00",
-          productId: selectedMachines[2] || "M65401",
-          technician: "Budi Santoso",
-          maintenanceType: "Preventive",
-          cost: 4200000,
-          downtime: 3.5
-        }
-      ]
+      tasks: tasks.slice(0, 3).map((task, idx) => ({
+        timeslot: idx === 0 ? "08:00-16:00" : idx === 1 ? "08:00-14:30" : "14:30-18:00",
+        productId: task.machine,
+        technician: ["Fajar Rahman", "Gita Permata", "Budi Santoso"][idx],
+        maintenanceType: task.type,
+        cost: task.cost,
+        downtime: task.rul / 10
+      }))
     };
 
     setOptimizedSchedule(mockSchedule);
@@ -64,7 +45,7 @@ export function OptimizeScheduleModal({
   };
 
   const handleConfirm = () => {
-    toast.success(`${selectedMachines.length} maintenance tickets created successfully`);
+    toast.success(`${tasks.length} maintenance tickets created successfully`);
     onConfirm?.();
     onOpenChange(false);
     setIsOptimized(false);
@@ -82,10 +63,10 @@ export function OptimizeScheduleModal({
           {!isOptimized ? (
             <div className="space-y-4">
               <Card className="p-4 bg-card/50 border-border/50">
-                <h3 className="font-semibold mb-3">Selected Machines</h3>
+                <h3 className="font-semibold mb-3">Selected Tasks</h3>
                 <div className="flex flex-wrap gap-2">
-                  {selectedMachines.map((machine) => (
-                    <Badge key={machine} variant="secondary">{machine}</Badge>
+                  {tasks.map((task) => (
+                    <Badge key={task.id} variant="secondary">{task.machine}</Badge>
                   ))}
                 </div>
               </Card>
