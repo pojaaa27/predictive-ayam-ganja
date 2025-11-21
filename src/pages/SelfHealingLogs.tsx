@@ -127,7 +127,14 @@ export default function SelfHealingLogs() {
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
-                  <Pie data={actionTypeData} cx="50%" cy="50%" outerRadius={80} dataKey="count">
+                  <Pie 
+                    data={actionTypeData} 
+                    cx="50%" 
+                    cy="50%" 
+                    outerRadius={80} 
+                    dataKey="count"
+                    label={({ type, count }) => `${type}: ${count}`}
+                  >
                     {actionTypeData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}

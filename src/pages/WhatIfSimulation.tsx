@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertTriangle, TrendingUp, TrendingDown, DollarSign, Wrench, Clock } from "lucide-react";
+import { AlertTriangle, TrendingUp, TrendingDown, DollarSign, Wrench, Clock, History } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 // Mock machines for simulation
 const mockMachines = [
@@ -51,14 +52,67 @@ const mockSimulationResult = {
   },
 };
 
+type SimulationHistory = {
+  timestamp: string;
+  machine: string;
+  delayDays: number;
+  costIncrease: number;
+  riskLevel: string;
+  recommendation: string;
+};
+
 export default function WhatIfSimulation() {
   const [selectedMachine, setSelectedMachine] = useState("M65401");
   const [delayDays, setDelayDays] = useState(3);
   const [simulationResult, setSimulationResult] = useState<typeof mockSimulationResult | null>(null);
+  const [simulationHistory, setSimulationHistory] = useState<SimulationHistory[]>([
+    {
+      timestamp: "2025-11-20 14:32",
+      machine: "M65401",
+      delayDays: 3,
+      costIncrease: 1260000,
+      riskLevel: "High",
+      recommendation: "Schedule immediately"
+    },
+    {
+      timestamp: "2025-11-20 11:15",
+      machine: "H87213",
+      delayDays: 7,
+      costIncrease: 3360000,
+      riskLevel: "Critical",
+      recommendation: "Emergency maintenance required"
+    },
+    {
+      timestamp: "2025-11-19 16:45",
+      machine: "M18273",
+      delayDays: 1,
+      costIncrease: 462000,
+      riskLevel: "Medium",
+      recommendation: "Schedule within 24 hours"
+    }
+  ]);
 
   const handleSimulate = () => {
     // In real app, this would call API
     setSimulationResult(mockSimulationResult);
+    
+    // Add to history
+    const newHistoryEntry: SimulationHistory = {
+      timestamp: new Date().toLocaleString('en-GB', { 
+        year: 'numeric', 
+        month: '2-digit', 
+        day: '2-digit', 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      }).replace(/\//g, '-').replace(',', ''),
+      machine: selectedMachine,
+      delayDays,
+      costIncrease: mockSimulationResult.costImpact.costIncrease,
+      riskLevel: mockSimulationResult.recommendation.priorityLevel,
+      recommendation: mockSimulationResult.recommendation.action
+    };
+    
+    setSimulationHistory([newHistoryEntry, ...simulationHistory]);
   };
 
   const getRiskColor = (level: string) => {
@@ -365,6 +419,62 @@ export default function WhatIfSimulation() {
             </Card>
           </>
         )}
+
+        {/* Simulation History */}
+        <Card className="glass-effect">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <History className="h-5 w-5 text-primary" />
+              Riwayat Simulasi
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="rounded-lg border border-border/50">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Timestamp</TableHead>
+                    <TableHead>Machine</TableHead>
+                    <TableHead>Delay (hari)</TableHead>
+                    <TableHead>Cost Increase</TableHead>
+                    <TableHead>Risk Level</TableHead>
+                    <TableHead>Recommendation</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {simulationHistory.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                        Belum ada riwayat simulasi
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    simulationHistory.map((history, index) => (
+                      <TableRow key={index} className="hover:bg-card/50">
+                        <TableCell className="font-mono text-xs">{history.timestamp}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline">{history.machine}</Badge>
+                        </TableCell>
+                        <TableCell className="text-center">{history.delayDays}</TableCell>
+                        <TableCell className="font-medium text-status-critical">
+                          +Rp {(history.costIncrease / 1000000).toFixed(2)}M
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className={getRiskBadgeColor(history.riskLevel)}>
+                            {history.riskLevel}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-sm text-muted-foreground max-w-xs truncate">
+                          {history.recommendation}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
