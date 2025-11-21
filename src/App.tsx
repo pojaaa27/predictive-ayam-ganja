@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import Landing from "./pages/Landing";
+import AboutUs from "./pages/AboutUs";
+import DatabaseSchema from "./pages/DatabaseSchema";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import MachineDetail from "./pages/MachineDetail";
@@ -45,6 +47,8 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Landing />} />
+          <Route path="/about" element={<AboutUs />} />
+          <Route path="/database-schema" element={<DatabaseSchema />} />
           <Route path="/login" element={<Login />} />
           <Route path="/dashboard" element={<AppLayout><Dashboard /></AppLayout>} />
           <Route path="/machine-detail" element={<AppLayout><MachineDetail /></AppLayout>} />

@@ -75,10 +75,26 @@ export default function Landing() {
               <p className="text-xs text-muted-foreground">Predictive Maintenance Copilot</p>
             </div>
           </div>
-          <Button onClick={() => navigate("/login")} className="gap-2">
-            Login
-            <ArrowRight className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate("/database-schema")}
+              className="hidden md:flex"
+            >
+              Database Schema
+            </Button>
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate("/about")}
+              className="hidden md:flex"
+            >
+              About Us
+            </Button>
+            <Button onClick={() => navigate("/login")} className="gap-2">
+              Login
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -267,16 +283,49 @@ export default function Landing() {
 
       {/* Footer */}
       <footer className="py-12 px-6 border-t border-border/50">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-              <Zap className="h-5 w-5 text-primary-foreground" />
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-3">
+              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                <Zap className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <div className="text-left">
+                <span className="text-lg font-bold text-foreground block">PredMaint AI</span>
+                <p className="text-xs text-muted-foreground">
+                  Predictive Maintenance Platform
+                </p>
+              </div>
             </div>
-            <span className="text-lg font-bold text-foreground">PredMaint AI</span>
+            <div className="flex gap-6">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => navigate("/about")}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                About Us
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => navigate("/database-schema")}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                Database Schema
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => navigate("/login")}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                Login
+              </Button>
+            </div>
           </div>
-          <p className="text-sm text-muted-foreground">
-            © 2025 PredMaint AI. Predictive Maintenance Platform powered by AI & Machine Learning.
-          </p>
+          <div className="text-center mt-8 text-sm text-muted-foreground">
+            © 2025 PredMaint AI. All rights reserved.
+          </div>
         </div>
       </footer>
     </div>
